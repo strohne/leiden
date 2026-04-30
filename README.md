@@ -11,11 +11,11 @@ A parser for Leidener Klammersystem transcriptions from the project Die Deutsche
   pip install pandas
   ```
   
-- If you have access to a Epigraf database, use `transform/getdata.R` to get inscription data.
-- Run `transform/parse.py` in interactive mode to parse the inscriptions
+- If you have access to an Epigraf database, use `transform/getdata.R` to get inscription data.
+- Run `transform/parse.py` in interactive mode to parse inscriptions
 
 
-To generate parsers:
+To generate the parser:
 ```
 dhparser dio.ebnf
 ```
