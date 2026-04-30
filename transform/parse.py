@@ -26,7 +26,7 @@ importlib.reload(dioParser)
 
 #%% Load transcriptions
 
-df = pd.read_csv("data/dio_inschriften.csv", delimiter = ';')
+df = pd.read_csv("data/input/dio_public_raw.csv", delimiter = ';')
 df['case'] = range(1, len(df) + 1)
 
 #%% Preprocess
@@ -70,4 +70,4 @@ df['ok'] = df['parsed'].str.startswith("<sco>")
 print(df['ok'].value_counts())
 
 #%% Save result
-df.to_csv("data/output.csv", index=False, sep=";")
+df.to_csv("data/output/dio_public_raw.csv", index=False, sep=";")

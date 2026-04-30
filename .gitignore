@@ -1,8 +1,9 @@
 # PyCharm settings
 .idea
 
-# Output
+# Input and output
 data/output
+data/input
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -186,3 +187,5 @@ LOGS
 # Further
 private/
 *MESSAGES.txt
+
+!.gitkeep

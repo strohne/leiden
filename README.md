@@ -10,7 +10,9 @@ A parser for Leidener Klammersystem transcriptions from the project Die Deutsche
   pip install DHParser
   pip install pandas
   ```
-- Run `epi2dio.py` in interactive mode
+  
+- If you have access to a Epigraf database, use `transform/getdata.R` to get inscription data.
+- Run `transform/parse.py` in interactive mode to parse the inscriptions
 
 
 To generate parsers:
