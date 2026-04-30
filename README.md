@@ -1,10 +1,6 @@
-# Leidener Klammersystem
+# DIO inscription parser
 
-A parser for the "Leidener Klammersystem" which is a notation used in 
-archaeology for transcribing inscriptions
-
-Author: Eckhart Arnold <Eckhart.Arnold@badw.de>, 
-Bavarian Academy of Sciences and Humanities
+A parser for Leidener Klammersystem transcriptions from the project Die Deutschen Inschriften.
 
 ## Getting started
 
@@ -14,40 +10,30 @@ Bavarian Academy of Sciences and Humanities
   pip install DHParser
   pip install pandas
   ```
-- Run `epi2dio.py` or `lks2epi.py`
+- Run `epi2dio.py` in interactive mode
 
 
 To generate parsers:
 ```
-dhparser LKS.ebnf
 dhparser dio.ebnf
 ```
 
 To run tests:
 ```
-python tst_LKS_grammar.py tests_grammar/02_test_lks_passau.ini
 python tst_dio_grammar.py tests_grammar/03_test_dio_passau.ini
 ```
 
-## License
+## Resources
 
-LKS is open source software under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
+https://epidoc.stoa.org/gl/latest/
 
-Copyright 2025 Eckhart Arnold <Eckhart.Arnold@badw.de>, 
-Bavarian Academy of Sciences and Humanities
+https://patrimonium.huma-num.fr/atlas/editor/
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+https://patrimonium.huma-num.fr/atlas/epidoc-converter/
 
-    https://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+## Authors
 
-## Status
-
-very first draft
+DIOParser is based on [DHParser](https://dhparser.readthedocs.io/).
+The first [version of the grammar](https://github.com/badw-dh/Leidener_Klammersystem) was developed in a workshop
+at the BBAW. Big shoutout to [Eckard Arnold](https://badw.de/die-akademie/mitarbeiter-verwaltung.html?tx_badwdb_badwperson%5Baction%5D=show&tx_badwdb_badwperson%5Bcontroller%5D=BADWPerson&tx_badwdb_badwperson%5BpartialType%5D=BADWPersonDetailsPartial&tx_badwdb_badwperson%5Bper_id%5D=3782). 
