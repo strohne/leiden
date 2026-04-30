@@ -18,19 +18,23 @@
 
 
 #
-# Container grammar ----
+# Container Grammar ----
 #
 
 sco            = prettyspace `<sco>` prettyspace sec+ `</sco>` prettyspace §EOF
 sec            = `<sec>` prettyspace ( snt | snr )* par* `</sec>` prettyspace
 
-snr            = `<snr>` /[A-Z]+/ "." prettyspace `</snr>` prettyspace
-snt            = `<snt>` prettyspace /(?:(?!<\/snt>)[\w .:,;()<>\/])+/ prettyspace `</snt>` prettyspace
+snr            = `<snr>` /[A-Z0-9]+/ "."? letters_cross? prettyspace `</snr>` prettyspace
+
+#snt         = `<snt>` prettyspace /(?:(?!<\/snt>)[\w .:,;()<>\/])+/ prettyspace `</snt>` prettyspace
+snt            = `<snt>` (b | /[^<]+/) `</snt>` prettyspace
+b              = prettyspace `<b>` /[^<]+/ `</b>` prettyspace
 
 par            = `<par>` prettyspace (lno | lin | table)+ `</par>` prettyspace
 
-lno            = `<lno>` § inscription `</lno>` prettyspace
-lin            = `<lin>` § inscription `</lin>` prettyspace
+lno            = `<lno>` cnt? § inscription `</lno>` prettyspace
+lin            = `<lin>` cnt? § inscription `</lin>` prettyspace
+cnt            = `<cnt>` /[0-9]+/ `</cnt>`
 
 table  = `<table>` prettyspace row+ `</table>` prettyspace
 row    = `<row>` prettyspace cell+ `</row>` prettyspace
@@ -41,64 +45,113 @@ entry  = `<entry>` § inscription `</entry>` prettyspace
 # Transcription Grammar ----
 #
 
-HIDE:inscription = ( inline | brackets | prettyspace )+
-HIDE:inline = phrases | token | space
+HIDE:inscription = ( inline | brackets )+
+HIDE:inline  = tags | insec | letters | terminator | binder | separator | space
 
-HIDE:phrases           = (token | brackets)+ space? phrase_terminator
-HIDE:phrase_terminator = "." | ":" | "," | ";"
+#
+# Tags ----
+#
 
-HIDE:token  = tags | insec | letters_range | letters | separator
-HIDE:tags   = apptag | lig | nl | b | strong | em | sup | chr
-apptag      =  /<(appnum|appalpha)[^>]*>[^<]*<\/\1>/+
-lig         = "<lig>" | "</lig>"
-nl       = "<nl></nl>"
-b           = "<b>" | "</b>"
-strong      = "<strong>" | "</strong>"
-chr         = "<chr>" | "</chr>"
-em          = "<em>" | "</em>"
-sup         = "<sup>" | "</sup>"
+HIDE:tags   = app | all | em | chr | sup | sub | nl
 
+HIDE:app    = appalpha | appnum
+appalpha    = `<appalpha id=` app_id `>` app_nr `</appalpha>`
+appnum      = `<appnum id=` app_id `>` app_nr `</appnum>`
+app_id      = /[^>]*/
+app_nr      = /[^<]*/
 
-HIDE:letters = letters_plain | letters_extended | letters_cross | letters_apostrophe
+all         = `<lig>` (letters | brackets | space)+ `</lig>`
+em          = `<em>` letters space? `</em>`
+chr         = `<chr>` letters space? `</chr>`
+sup         = `<sup>` letters space? `</sup>`
+sub         = `<sub>` letters space? `</sub>`
+nl          = `<nl></nl>` | `<nl/>`
+
+#
+# Insec ----
+#
+
+insec                  =  insec_combined_plain | insec_combined_extended | insec_precomposed | insec_binder | insec_separator
+
+HIDE:insec_combined_plain    = /[a-zA-Z0-9]\u0323/
+HIDE:insec_combined_extended = /[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]\u0323/
+HIDE:insec_precomposed       = /[ẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒạḅḍẹḥịḳḷṃṇọṛṣṭụṿẉỵẓ]/
+HIDE:insec_binder    = binder /\u0323/
+HIDE:insec_separator = wtr / ?(\u0323)/ ~
+
+#
+# Letters ----
+#
+
+letters = letters_range | letters_sequence
+
+HIDE:letters_sequence         = letters_plain | letters_extended | letters_diacrytic | letters_cross | letters_apostrophe
+HIDE:letters_range       = letters_sequence "-" letters_sequence
 HIDE:letters_plain       = /[A-Za-z0-9](?!\u0323)/+
 HIDE:letters_extended    = /[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ](?!\u0323)/+
+HIDE:letters_diacrytic   = /[A-Za-z]̈(?!\u0323)/+
 HIDE:letters_cross       = /[+†]/
 HIDE:letters_apostrophe  =  "'"
-HIDE:letters_range       = letters "-" letters
 
-insec                  =  combined_plain | combined_extended | precomposed
-HIDE:combined_plain    = /[a-zA-Z0-9](\u0323)/
-HIDE:combined_extended = /[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ](\u0323)/
-HIDE:precomposed       = /[ẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒạḅḍẹḥịḳḷṃṇọṛṣṭụṿẉỵẓ]/
+#
+# Terminators ----
+#
 
-HIDE:separator   = separator_phrase | separator_word_insec | separator_word |  separator_word_dot | separator_syl | separator_line | separator_colon | seperator_equal
-separator_word       = ~"∙"~ | ~"·"~
-separator_word_dot   = ~"."~
-separator_word_insec = ~ /[∙·] ?(\u0323)/ ~
-separator_line       = ~"/"~
-separator_colon      = ~":"~
-separator_phrase = ~","~
-seperator_equal = /(?<!\s)=(?!\s)/
+terminator = /(?<!\s)[\.:,;]/
 
-HIDE:separator_syl = separator_syl_double_insec | separator_syl_double | separator_syl_single | separator_syl_hyphen | separator_syl_space | separator_syl_nextline
-separator_syl_single        = ~"=/"~
-separator_syl_hyphen        = /(?<!-)-\// | /(?<!-)-(?=<)/
-separator_syl_space         = ~"= /"~
-separator_syl_nextline      = ~"/="
-separator_syl_double        = ~"=/="~
-separator_syl_double_insec  = /=\u0323\/=|=\/=\u0323/
+#
+# Binders ----
+#
 
-HIDE:brackets = rasure | deletion | cpl | abr | add
-rasure       = `[[` § inline+ `]]`
-deletion     = `[` (unreadable | unknown ) `]`
-cpl          = `[` § (inline | unknown | tags | abr)+ `]`
-abr          = `(` § (token | space )+ `)`
-add          = `&lt;` (tags | brackets | unknown | inline)+ `&gt;`
+binder = binder_equal | binder_hyphen
 
-HIDE:unreadable  = "."+
-HIDE:unknown     = `---` | `--`
+HIDE:binder_equal  = "="
+HIDE:binder_hyphen  = /(?<!-)-(?!-)/
 
-HIDE:space        = " "~ ! separator
+#
+# Separators ----
+#
+
+HIDE:separator   = z | wtr
+
+wtr = sep_word_dot |  sep_word_period | sep_word_comma | sep_word_colon | sep_word_equal
+
+# Moved to attribute value in AST
+sep_word_dot           = ~"·"~
+sep_word_period        = ~"."~ #
+sep_word_colon         = ~":"~
+sep_word_comma         = ~","~
+sep_word_equal         = /(?<!\s)=(?!\s)/
+
+z = sep_field | sep_line
+
+# Moved to attribute value in AST
+sep_field          = ~"//"~
+sep_line          = ~"/"~
+
+
+#
+# Brackets ----
+#
+
+HIDE:brackets =  abr | deletion | cpl | add
+
+abr             = `(` inline+ `)`
+deletion        = `[` lost `]` # Renamed to del in AST
+cpl             = `[` (tags | deletion_nested | inline |  brackets)+ `]`
+add             = (`&lt;` | `⟨` ) (tags | deletion_nested | inline | brackets)+ (`&gt;`|`⟩`)
+
+deletion_nested = lost         # Renamed to del in AST
+
+HIDE:lost  = unknown | known
+HIDE:unknown         = `---` | `--` | `–––` | `- - -` | `– – –` | `– – –`
+HIDE:known           = "."+
+
+#
+# Space ----
+#
+
+space        = /\s/~ ! separator
 DROP:prettyspace  = /[\r\n ]*/
 DROP:EOF    =  !/./
 

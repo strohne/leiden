@@ -112,9 +112,10 @@ class dioGrammar(Grammar):
     """
     brackets = Forward()
     inline = Forward()
-    source_hash__ = "a471d66e4f2b47628f99b7271734ce59"
+    tags = Forward()
+    source_hash__ = "f8991c6886e21adcc03dda8cc835d5ed"
     early_tree_reduction__ = CombinedParser.MERGE_LEAVES
-    disposable__ = re.compile('(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:inscription$))|(?:inline$))|(?:phrases$))|(?:phrase_terminator$))|(?:token$))|(?:tags$))|(?:letters$))|(?:letters_plain$))|(?:letters_extended$))|(?:letters_cross$))|(?:letters_apostrophe$))|(?:letters_range$))|(?:combined_plain$))|(?:combined_extended$))|(?:precomposed$))|(?:separator$))|(?:separator_syl$))|(?:brackets$))|(?:unreadable$))|(?:unknown$))|(?:space$))|(?:prettyspace$))|(?:EOF$)')
+    disposable__ = re.compile('(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:inscription$))|(?:inline$))|(?:tags$))|(?:app$))|(?:insec_combined_plain$))|(?:insec_combined_extended$))|(?:insec_precomposed$))|(?:insec_binder$))|(?:insec_separator$))|(?:letters_sequence$))|(?:letters_range$))|(?:letters_plain$))|(?:letters_extended$))|(?:letters_diacrytic$))|(?:letters_cross$))|(?:letters_apostrophe$))|(?:binder_equal$))|(?:binder_hyphen$))|(?:separator$))|(?:brackets$))|(?:lost$))|(?:unknown$))|(?:known$))|(?:prettyspace$))|(?:EOF$)')
     static_analysis_pending__ = []  # type: List[bool]
     parser_initialization__ = ["upon instantiation"]
     COMMENT__ = r''
@@ -125,64 +126,70 @@ class dioGrammar(Grammar):
     dwsp__ = Drop(Whitespace(WSP_RE__))
     EOF = Drop(NegativeLookahead(RegExp('.')))
     prettyspace = Drop(RegExp('[\\r\\n ]*'))
-    separator_word = Alternative(Series(dwsp__, Text("∙"), dwsp__), Series(dwsp__, Text("·"), dwsp__))
-    unknown = Alternative(Drop(Text("---")), Drop(Text("--")))
-    unreadable = OneOrMore(Text("."))
-    nl = Text("<nl></nl>")
-    apptag = OneOrMore(RegExp('<(appnum|appalpha)[^>]*>[^<]*</\\1>'))
-    lig = Alternative(Text("<lig>"), Text("</lig>"))
-    deletion = Series(Drop(Text("[")), Alternative(unreadable, unknown), Drop(Text("]")))
-    rasure = Series(Drop(Text("[[")), OneOrMore(inline), Drop(Text("]]")), mandatory=1)
-    snr = Series(Drop(Text("<snr>")), RegExp('[A-Z]+'), Text("."), prettyspace, Drop(Text("</snr>")), prettyspace)
-    separator_syl_double_insec = RegExp('=\\u0323/=|=/=\\u0323')
-    separator_syl_double = Series(dwsp__, Text("=/="), dwsp__)
-    separator_syl_nextline = Series(dwsp__, Text("/="))
-    separator_syl_space = Series(dwsp__, Text("= /"), dwsp__)
-    separator_syl_hyphen = Alternative(RegExp('(?<!-)-/'), RegExp('(?<!-)-(?=<)'))
-    separator_syl_single = Series(dwsp__, Text("=/"), dwsp__)
-    separator_syl = Alternative(separator_syl_double_insec, separator_syl_double, separator_syl_single, separator_syl_hyphen, separator_syl_space, separator_syl_nextline)
-    seperator_equal = RegExp('(?<!\\s)=(?!\\s)')
-    separator_phrase = Series(dwsp__, Text(","), dwsp__)
-    separator_colon = Series(dwsp__, Text(":"), dwsp__)
-    separator_line = Series(dwsp__, Text("/"), dwsp__)
-    separator_word_insec = Series(dwsp__, RegExp('[∙·] ?(\\u0323)'), dwsp__)
-    separator_word_dot = Series(dwsp__, Text("."), dwsp__)
-    separator = Alternative(separator_phrase, separator_word_insec, separator_word, separator_word_dot, separator_syl, separator_line, separator_colon, seperator_equal)
-    space = Series(Text(" "), dwsp__, NegativeLookahead(separator))
-    precomposed = RegExp('[ẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒạḅḍẹḥịḳḷṃṇọṛṣṭụṿẉỵẓ]')
-    combined_extended = RegExp('[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ](\\u0323)')
-    combined_plain = RegExp('[a-zA-Z0-9](\\u0323)')
-    insec = Alternative(combined_plain, combined_extended, precomposed)
-    letters_plain = OneOrMore(RegExp('[A-Za-z0-9](?!\\u0323)'))
+    sep_word_dot = Series(dwsp__, Text("·"), dwsp__)
+    known = OneOrMore(Text("."))
+    unknown = Alternative(Drop(Text("---")), Drop(Text("--")), Drop(Text("–––")), Drop(Text("- - -")), Drop(Text("– – –")), Drop(Text("–\u202f–\u202f–")))
+    lost = Alternative(unknown, known)
+    deletion_nested = Synonym(lost)
+    add = Series(Alternative(Drop(Text("&lt;")), Drop(Text("⟨"))), OneOrMore(Alternative(tags, deletion_nested, inline, brackets)), Alternative(Drop(Text("&gt;")), Drop(Text("⟩"))))
+    cpl = Series(Drop(Text("[")), OneOrMore(Alternative(tags, deletion_nested, inline, brackets)), Drop(Text("]")))
+    deletion = Series(Drop(Text("[")), lost, Drop(Text("]")))
+    abr = Series(Drop(Text("(")), OneOrMore(inline), Drop(Text(")")))
+    b = Series(prettyspace, Drop(Text("<b>")), RegExp('[^<]+'), Drop(Text("</b>")), prettyspace)
+    sep_line = Series(dwsp__, Text("/"), dwsp__)
+    sep_field = Series(dwsp__, Text("//"), dwsp__)
+    z = Alternative(sep_field, sep_line)
+    sep_word_equal = RegExp('(?<!\\s)=(?!\\s)')
+    sep_word_comma = Series(dwsp__, Text(","), dwsp__)
+    sep_word_colon = Series(dwsp__, Text(":"), dwsp__)
+    sep_word_period = Series(dwsp__, Text("."), dwsp__)
+    wtr = Alternative(sep_word_dot, sep_word_period, sep_word_comma, sep_word_colon, sep_word_equal)
+    separator = Alternative(z, wtr)
+    space = Series(RegExp('\\s'), dwsp__, NegativeLookahead(separator))
+    binder_hyphen = RegExp('(?<!-)-(?!-)')
+    binder_equal = Text("=")
+    binder = Alternative(binder_equal, binder_hyphen)
+    terminator = RegExp('(?<!\\s)[\\.:,;]')
     letters_apostrophe = Text("\'")
     letters_cross = RegExp('[+†]')
+    letters_diacrytic = OneOrMore(RegExp('[A-Za-z]̈(?!\\u0323)'))
     letters_extended = OneOrMore(RegExp('[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ](?!\\u0323)'))
-    letters = Alternative(letters_plain, letters_extended, letters_cross, letters_apostrophe)
-    letters_range = Series(letters, Text("-"), letters)
-    sup = Alternative(Text("<sup>"), Text("</sup>"))
-    em = Alternative(Text("<em>"), Text("</em>"))
-    chr = Alternative(Text("<chr>"), Text("</chr>"))
-    strong = Alternative(Text("<strong>"), Text("</strong>"))
-    b = Alternative(Text("<b>"), Text("</b>"))
-    tags = Alternative(apptag, lig, nl, b, strong, em, sup, chr)
-    add = Series(Drop(Text("&lt;")), OneOrMore(Alternative(tags, brackets, unknown, inline)), Drop(Text("&gt;")))
-    token = Alternative(tags, insec, letters_range, letters, separator)
-    abr = Series(Drop(Text("(")), OneOrMore(Alternative(token, space)), Drop(Text(")")), mandatory=1)
-    cpl = Series(Drop(Text("[")), OneOrMore(Alternative(inline, unknown, tags, abr)), Drop(Text("]")), mandatory=1)
-    phrase_terminator = Alternative(Text("."), Text(":"), Text(","), Text(";"))
-    phrases = Series(OneOrMore(Alternative(token, brackets)), Option(space), phrase_terminator)
-    snt = Series(Drop(Text("<snt>")), prettyspace, RegExp('(?:(?!</snt>)[\\w .:,;()<>/])+'), prettyspace, Drop(Text("</snt>")), prettyspace)
-    inscription = OneOrMore(Alternative(inline, brackets, prettyspace))
+    letters_plain = OneOrMore(RegExp('[A-Za-z0-9](?!\\u0323)'))
+    letters_sequence = Alternative(letters_plain, letters_extended, letters_diacrytic, letters_cross, letters_apostrophe)
+    letters_range = Series(letters_sequence, Text("-"), letters_sequence)
+    letters = Alternative(letters_range, letters_sequence)
+    insec_separator = Series(wtr, RegExp(' ?(\\u0323)'), dwsp__)
+    insec_binder = Series(binder, RegExp('\\u0323'))
+    insec_precomposed = RegExp('[ẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒạḅḍẹḥịḳḷṃṇọṛṣṭụṿẉỵẓ]')
+    insec_combined_extended = RegExp('[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]\\u0323')
+    insec_combined_plain = RegExp('[a-zA-Z0-9]\\u0323')
+    insec = Alternative(insec_combined_plain, insec_combined_extended, insec_precomposed, insec_binder, insec_separator)
+    nl = Alternative(Drop(Text("<nl></nl>")), Drop(Text("<nl/>")))
+    sub = Series(Drop(Text("<sub>")), letters, Option(space), Drop(Text("</sub>")))
+    sup = Series(Drop(Text("<sup>")), letters, Option(space), Drop(Text("</sup>")))
+    chr = Series(Drop(Text("<chr>")), letters, Option(space), Drop(Text("</chr>")))
+    em = Series(Drop(Text("<em>")), letters, Option(space), Drop(Text("</em>")))
+    all = Series(Drop(Text("<lig>")), OneOrMore(Alternative(letters, brackets, space)), Drop(Text("</lig>")))
+    app_nr = RegExp('[^<]*')
+    app_id = RegExp('[^>]*')
+    appnum = Series(Drop(Text("<appnum id=")), app_id, Drop(Text(">")), app_nr, Drop(Text("</appnum>")))
+    appalpha = Series(Drop(Text("<appalpha id=")), app_id, Drop(Text(">")), app_nr, Drop(Text("</appalpha>")))
+    app = Alternative(appalpha, appnum)
+    snr = Series(Drop(Text("<snr>")), RegExp('[A-Z0-9]+'), Option(Text(".")), Option(letters_cross), prettyspace, Drop(Text("</snr>")), prettyspace)
+    snt = Series(Drop(Text("<snt>")), Alternative(b, RegExp('[^<]+')), Drop(Text("</snt>")), prettyspace)
+    inscription = OneOrMore(Alternative(inline, brackets))
     entry = Series(Drop(Text("<entry>")), inscription, Drop(Text("</entry>")), prettyspace, mandatory=1)
     cell = Series(Drop(Text("<cell>")), prettyspace, OneOrMore(entry), Drop(Text("</cell>")), prettyspace)
     row = Series(Drop(Text("<row>")), prettyspace, OneOrMore(cell), Drop(Text("</row>")), prettyspace)
     table = Series(Drop(Text("<table>")), prettyspace, OneOrMore(row), Drop(Text("</table>")), prettyspace)
-    lin = Series(Drop(Text("<lin>")), inscription, Drop(Text("</lin>")), prettyspace, mandatory=1)
-    lno = Series(Drop(Text("<lno>")), inscription, Drop(Text("</lno>")), prettyspace, mandatory=1)
+    cnt = Series(Drop(Text("<cnt>")), RegExp('[0-9]+'), Drop(Text("</cnt>")))
+    lin = Series(Drop(Text("<lin>")), Option(cnt), inscription, Drop(Text("</lin>")), prettyspace, mandatory=2)
+    lno = Series(Drop(Text("<lno>")), Option(cnt), inscription, Drop(Text("</lno>")), prettyspace, mandatory=2)
     par = Series(Drop(Text("<par>")), prettyspace, OneOrMore(Alternative(lno, lin, table)), Drop(Text("</par>")), prettyspace)
     sec = Series(Drop(Text("<sec>")), prettyspace, ZeroOrMore(Alternative(snt, snr)), ZeroOrMore(par), Drop(Text("</sec>")), prettyspace)
-    brackets.set(Alternative(rasure, deletion, cpl, abr, add))
-    inline.set(Alternative(phrases, token, space))
+    brackets.set(Alternative(abr, deletion, cpl, add))
+    tags.set(Alternative(app, all, em, chr, sup, sub, nl))
+    inline.set(Alternative(tags, insec, letters, terminator, binder, separator, space))
     sco = Series(prettyspace, Drop(Text("<sco>")), prettyspace, OneOrMore(sec), Drop(Text("</sco>")), prettyspace, EOF, mandatory=6)
     root__ = sco
     
@@ -197,19 +204,58 @@ get_grammar = parsing.factory # for backwards compatibility, only
 #######################################################################
 
 
+def count_characters(path: Path):
+    node = path[-1]
+    assert not node.children
+    node.attr['num_sign'] = len(node.content)
+    node.result = ''
+
+def move_app_id_to_attr(path: Path):
+    node = path[-1]
+
+    assert len(node.children) == 2
+    node.attr['id'] = node.children[0].content.strip('"')
+    node.result = node.children[1].content
+
+def remove_dot_below(path: Path):
+    currentNode = path[-1]
+
+    nodes = list(currentNode.children) + [currentNode]
+
+    for node in nodes:
+        plain = node.content
+        if plain != "":
+
+            # Translate precomposed characters
+            translate_from = "ẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒạḅḍẹḥịḳḷṃṇọṛṣṭụṿẉỵẓ"
+            translate_to   = "ABDEHIKLMNORSTUVWYZabdehiklmnorstuvwyz"
+            plain = plain.translate(str.maketrans(translate_from, translate_to))
+
+            # Remove combined dot
+            plain = plain.replace(u"\u0323","")
+
+            node.result = plain
+
+
 def move_content_to_attr(path: Path):
     node = path[-1]
     assert not node.children
-    node.attr['content'] = node.content
+    node.attr['type'] = node.name.replace('sep_word_','').replace('sep_','')
+    node.attr['rend'] = node.content
     node.result = ''
-
 
 dio_AST_transformation_table = {
     # AST Transformations for the dio-grammar
     # "<": [],  # called for each node before calling its specific rules
     # "*": [],  # fallback for nodes that do not appear in this table
     # ">": [],   # called for each node after calling its specific rules
-    "deletion" : [change_name("del"), replace_by_single_child, move_content_to_attr]
+    "z" : [replace_by_single_child, move_content_to_attr, change_name("z")],
+    "wtr" : [replace_by_single_child, move_content_to_attr, change_name("wtr")],
+    "deletion" : [change_name("del"), replace_by_single_child, count_characters],
+    "deletion_nested":  [change_name("del"), replace_by_single_child, count_characters],
+    "appalpha" : [move_app_id_to_attr],
+    "appnum" : [move_app_id_to_attr],
+    "insec" : [remove_dot_below]
 }
 
 

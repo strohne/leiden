@@ -19,6 +19,7 @@
 
 import pandas as pd
 import dioParser
+from tqdm import tqdm
 
 import importlib
 importlib.reload(dioParser)
@@ -41,12 +42,12 @@ for idx, row in df.iterrows():
     tests += f"\nC{str(row['case'])}: "
     tests += '"""' + inscription + '"""'
 
-with open("tests_grammar/03_test_dio_sco_passau.ini", "w", encoding="utf-8") as file:
+with open("tests_grammar/" + filename + ".ini", "w", encoding="utf-8") as file:
     file.write("[match:sco]\n" + tests)
 
 #%% Build parser
 
-dioParser.recompile_grammar("dio.ebnf", "dioParser.py", force=False)
+dioParser.recompile_grammar("dio.ebnf", "dioParser.py", force=True)
 
 #%% Parse all dio sco
 
@@ -69,4 +70,4 @@ df['ok'] = df['parsed'].str.startswith("<sco>")
 print(df['ok'].value_counts())
 
 #%% Save result
-df.to_csv("dio2epi/leiden/output.csv", index=False, sep=";")
+df.to_csv("data/output.csv", index=False, sep=";")
