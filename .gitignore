@@ -3,7 +3,7 @@
 
 # Input and output
 data/output
-data/input
+data/input/*.csv
 !data/input/dio_inschriften_di101.csv
 !data/input/dio_inschriften_di101.csv
 
