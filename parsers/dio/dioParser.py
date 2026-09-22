@@ -118,7 +118,7 @@ class dioGrammar(Grammar):
     brackets = Forward()
     inline = Forward()
     tags = Forward()
-    source_hash__ = "c97ef582b00d05c86c4eafd9d9159020"
+    source_hash__ = "0f9d4835f3a89feb1fceae3f1fb0bd3d"
     early_tree_reduction__ = CombinedParser.MERGE_LEAVES
     disposable__ = re.compile('(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:inscription$))|(?:inline$))|(?:tags$))|(?:app$))|(?:insec_combined_plain$))|(?:insec_combined_extended$))|(?:insec_precomposed$))|(?:insec_binder$))|(?:insec_separator$))|(?:letters_sequence$))|(?:letters_range$))|(?:letters_plain$))|(?:letters_extended$))|(?:letters_diacrytic$))|(?:letters_cross$))|(?:letters_apostrophe$))|(?:binder_equal$))|(?:binder_hyphen$))|(?:separator$))|(?:brackets$))|(?:lost$))|(?:unknown$))|(?:known$))|(?:prettyspace$))|(?:EOF$)')
     static_analysis_pending__ = []  # type: List[bool]
