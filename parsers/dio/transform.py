@@ -16,7 +16,14 @@
 # are represented with named entities (&lt; &gt;).
 #
 #
-import os
+from pathlib import Path
+
+PROJECT_ROOT = (
+    Path(__file__).resolve().parents[2]
+    if "__file__" in globals()
+    else Path.cwd()
+)
+DIO_ROOT = PROJECT_ROOT / "parsers" / "dio"
 
 import pandas as pd
 import parsers.dio.dioParser as dioParser
@@ -27,12 +34,13 @@ importlib.reload(dioParser)
 
 #%% Load transcriptions
 
+
 filename = "dio_public_raw.csv"
-df = pd.read_csv(os.path.join("data/input", filename), delimiter = ',')
+df = pd.read_csv(PROJECT_ROOT / "data" / "input" / filename, delimiter = ';')
 df['case'] = range(1, len(df) + 1)
 
 #%% Preprocess
-regs = pd.read_csv("parsers/dio/preprocess.csv", delimiter = ';', keep_default_na=False)
+regs = pd.read_csv(DIO_ROOT / "preprocess.csv", delimiter = ';', keep_default_na=False)
 for idx, row in regs.iterrows():
     df['content'] =  df['content'].str.replace(row['search'], row['replace'], regex=True) # , flags = re.MULTILINE
 
@@ -44,14 +52,14 @@ for idx, row in df.iterrows():
     tests += f"\nC{str(row['case'])}: "
     tests += '"""' + inscription + '"""'
 
-outputname = os.path.splitext(os.path.basename(filename))[0]
-with open("parsers/dio/tests/" + outputname + ".ini", "w", encoding="utf-8") as file:
+outputname = Path(filename).stem
+with open(DIO_ROOT / "tests" / f"{outputname}.ini", "w", encoding="utf-8") as file:
     file.write("[match:sco]\n" + tests)
 
 #%% Build parser
 
-grammarpath = os.path.join("parsers/dio", "dio.ebnf")
-dioParser.recompile_grammar(grammarpath, force=True)
+grammarpath = DIO_ROOT / "dio.ebnf"
+dioParser.recompile_grammar(str(grammarpath), force=True)
 
 #%% Parse all dio sco
 
@@ -74,4 +82,4 @@ df['ok'] = df['parsed'].str.startswith("<sco>")
 print(df['ok'].value_counts())
 
 #%% Save result
-df.to_csv(os.path.join("data/output", outputname + ".csv"), index=False, sep=";")
+df.to_csv(PROJECT_ROOT / "data" / "output" / f"{outputname}.csv", index=False, sep=";")
