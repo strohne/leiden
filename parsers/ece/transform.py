@@ -3,8 +3,15 @@
 # Transform EpiCentres data
 #
 
-import glob
-import os
+from pathlib import Path
+
+PROJECT_ROOT = (
+    Path(__file__).resolve().parents[2]
+    if "__file__" in globals()
+    else Path.cwd()
+)
+ECE_ROOT = PROJECT_ROOT / "parsers" / "ece"
+
 import pandas as pd
 
 import importlib
@@ -16,7 +23,7 @@ from parsers.ece.eceTransformer import EceTransformer
 #%% Load data
 
 filename = "ece_gardell-1937-latin.xlsx"
-inputfile = os.path.join("data/input/", filename)
+inputfile = PROJECT_ROOT / "data" / "input" / filename
 df = pd.read_excel(inputfile)
 
 #%% Prepare IDs
@@ -40,7 +47,7 @@ df = df[cols + [c for c in df.columns if c not in cols]]
 
 #%% Instantiate transformer and preprocess text
 
-ece = EceTransformer("parsers/ece/")
+ece = EceTransformer(str(ECE_ROOT) + "/")
 df = ece.preprocess(df, 'transcription')
 df = ece.preprocess(df, 'expanded')
 
@@ -73,6 +80,6 @@ print(df[["expanded_status", "expanded_matched_brackets"]].value_counts())
 
 #%% Save results
 
-outputname = os.path.splitext(os.path.basename(filename))[0]
-df.to_csv(os.path.join("data/output", outputname + ".csv"), index=False)
-df.to_excel(os.path.join("data/output", outputname + ".xlsx"), index=False)
+outputname = Path(filename).stem
+df.to_csv(PROJECT_ROOT / "data" / "output" / f"{outputname}.csv", index=False)
+df.to_excel(PROJECT_ROOT / "data" / "output" / f"{outputname}.xlsx", index=False)
