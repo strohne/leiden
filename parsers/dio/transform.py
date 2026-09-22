@@ -27,8 +27,8 @@ importlib.reload(dioParser)
 
 #%% Load transcriptions
 
-filename = "dio_inschriften_di101.csv"
 
+filename = "dio_inschriften_di101.csv"
 df = pd.read_csv(os.path.join("data/input", filename), delimiter = ';')
 df['case'] = range(1, len(df) + 1)
 

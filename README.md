@@ -14,8 +14,9 @@ Another parser is made for the EpiCentres project.
   pip install pandas
   pip install openpyxl
   ```
+- If you have access to an Epigraf database, use `data/input/getdata.R` to get inscription data.
 - Run `parsers/dio/transform.py` in interactive mode
-
+  
 
 To generate parsers:
 ```

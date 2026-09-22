@@ -1,7 +1,7 @@
 # PyCharm settings
 .idea
 
-# Output
+# Input and output
 data/output
 data/input
 !data/input/dio_inschriften_di101.csv
@@ -192,3 +192,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+!.gitkeep

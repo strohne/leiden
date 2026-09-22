@@ -165,3 +165,13 @@ Das mit dem DHParser erzeugte Ergebnis ist eine Schnittmenge des DIO-Tagsets und
 | wtr      | type, rend |                                                 | 
 | z        | type, rend |                                                 | 
 
+
+## Broken articles
+
+The file dio/preprocess.csv contains fixes for broken articles.
+
+- search:  A regex that matches broken markup
+- replace: The replacement pattern. 
+           An empty string removes the matched text.
+- cases:   A comma separated list of case numbers.
+           This will help to fix the cases directly in T3. 
