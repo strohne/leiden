@@ -1,0 +1,319 @@
+#######################################################################
+#
+# Grammar for the EpiCentres files
+#
+#######################################################################
+
+
+#
+#  EBNF-Directives ----
+#
+
+@ whitespace  = /[  ]*/
+@ literalws   = none
+# @ comment     = /#.*/
+@ ignorecase  = False
+@ reduction   = merge
+@ drop        = whitespace, backticked
+
+
+#
+# Layout Grammar ----
+#
+
+lines = multiline | singleline
+HIDE: multiline  = linestart inscription §EOF
+HIDE: singleline = inscription §EOF
+
+HIDE: linestart = lb lb_sep prettyspace
+HIDE: linebreak = lb_break lb lb_sep prettyspace
+DROP: lb_sep = /\)/
+
+lb       = /[a-zA-Z]+/
+lb_break = /[\r\n]+/ # Renamed to nl in AST
+
+DROP:EOF =  !/./
+
+#
+# Transcription Grammar ----
+#
+
+HIDE:inscription = ( inline | brackets | nl )+
+nl = /[\r\n]+/ ! linestart
+
+HIDE:inline  = subbar | bar | lig | unc | sup | com | strike | spaceseq | characters | nl
+HIDE:characters = linebreak | am | letters | terminator | binder | pc | inspace
+
+#
+# Letters ----
+#
+
+letters = letters_range | letters_sequence
+
+HIDE:letters_range       = letters_sequence "-" letters_sequence
+HIDE:letters_sequence    = ( letter ! combining )+
+HIDE:combining           = combining_diacrytic | combining_dotbelow | combining_superscript | combining_barabove | combining_barbetween | combining_barbelow | combining_breve | combining_strikethrough | combining_strikesolidus | combining_strikedouble
+
+# Renamed to letters in AST
+letter_mixed = letter
+
+# TODO: Should we replace combined dot above and diaeresis with precomposed characters in AST?
+#\u0307 → combining dot above (ȧ)
+#\u0313 → combining comma above (o̓)
+#\u0308 → combining diaeresis / umlaut (ä)
+HIDE:combining_diacrytic  = /[\u0307\u0308\u0313]/
+
+HIDE:letter              = letter_diacrytic | letter_simple
+HIDE:letter_simple       = letter_plain | letter_greek | letter_extended | letter_apostrophe
+HIDE:letter_plain       = /[A-Za-z0-9]/
+HIDE:letter_greek       = /[Α-Ωα-ω]/
+HIDE:letter_extended    = /[àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêȇîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæŒœİḢṪȧėṗṡḣȮŁłↃÞþ]/
+HIDE:letter_apostrophe  =  /[']/
+HIDE:letter_diacrytic   = letter_simple combining_diacrytic
+
+#
+# Uncertain ----
+#
+
+unc =  uncertain_combined | uncertain_precomposed | uncertain_binder | uncertain_pc | uncertain_am
+
+HIDE:uncable = com | letter_mixed
+HIDE:uncertain_combined          = uncable combining_dotbelow
+HIDE:uncertain_precomposed       = /[ẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒạḅḍẹḥịḳḷṃṇọṛṣṭụṿẉỵẓ]/
+HIDE:uncertain_binder            = binder dotbelow
+HIDE:uncertain_pc                = pc dotbelow
+HIDE:uncertain_am                = am dotbelow
+
+#\u0323 → combining dot below (e.g. ạ)
+DROP:dotbelow             = / ?(\u0323)/
+
+# TODO: We can now DROP the dot, right?
+HIDE:combining_dotbelow   = /\u0323/
+
+#
+# Separators ----
+#
+
+pc = sep_word_dot | sep_word_period | sep_word_punct | sep_word_special
+
+# Moved to attribute value 'rend' in AST
+sep_word_dot           = /[ᣟ·∙⋅]/
+sep_word_period        = /\.(?!\?)/
+sep_word_punct         = /[:;,]/
+sep_word_special       = /[ͦ°ↀꝚ⁜✶☓§‡†✝+◦✢〇⊙⬦◇⋮⦂≡ᛁᛟ᪥⨯ͮ≗᪥◆●𛲜⁘◎△⁙⦚|/⌃!?–]/
+
+#
+# Superscripts and subscripts ----
+#
+
+sup = (sups_number | sups_letter) +
+HIDE:sups_number = /[⁰¹²³⁴⁵⁶⁷⁸⁹]/
+
+#ᴬ → U+1D2C  (MODIFIER LETTER CAPITAL A)
+#ᴮ → U+1D2E  (MODIFIER LETTER CAPITAL B)
+#ᴰ → U+1D30  (MODIFIER LETTER CAPITAL D)
+#ᴱ → U+1D31  (MODIFIER LETTER CAPITAL E)
+#ᴳ → U+1D33  (MODIFIER LETTER CAPITAL G)
+#ᴴ → U+1D34  (MODIFIER LETTER CAPITAL H)
+#ᴵ → U+1D35  (MODIFIER LETTER CAPITAL I)
+#ᴶ → U+1D36  (MODIFIER LETTER CAPITAL J)
+#ᴷ → U+1D37  (MODIFIER LETTER CAPITAL K)
+#ᴸ → U+1D38  (MODIFIER LETTER CAPITAL L)
+#ᴹ → U+1D39  (MODIFIER LETTER CAPITAL M)
+#ᴺ → U+1D3A  (MODIFIER LETTER CAPITAL N)
+#ᴼ → U+1D3C  (MODIFIER LETTER CAPITAL O)
+#ᴾ → U+1D3E  (MODIFIER LETTER CAPITAL P)
+#ᴿ → U+1D3F  (MODIFIER LETTER CAPITAL R)
+#ᵀ → U+1D40  (MODIFIER LETTER CAPITAL T)
+#ᵁ → U+1D41  (MODIFIER LETTER CAPITAL U)
+#ⱽ → U+2C7D  (MODIFIER LETTER CAPITAL V)
+
+#ᵃ → U+1D43 (MODIFIER LETTER SMALL A)
+#ᶜ → U+1D9C  (MODIFIER LETTER SMALL C)
+#ᵈ → U+1D48  (MODIFIER LETTER SMALL D)
+#ˢ → U+02E2  (MODIFIER LETTER SMALL S)
+#ᵗ → U+1D57 (MODIFIER LETTER SMALL T)
+#ᵘ → U+1D58  (MODIFIER LETTER SMALL U)
+#ᵛ → U+1D5B  (MODIFIER LETTER SMALL V)
+#ʷ → U+02B7  (MODIFIER LETTER SMALL W)
+#ˣ → U+02E3  (MODIFIER LETTER SMALL X)
+#ʸ → U+02B8  (MODIFIER LETTER SMALL Y)
+#ᶻ → U+1DBB  (MODIFIER LETTER SMALL Z)
+
+#ⁱ → U+2071  (SUPERSCRIPT LATIN SMALL LETTER I)
+
+HIDE:sups_letter = /[ᴬᵃᴮᶜᴰᵈᴱᵉᴳᴴᴵⁱᴶᴷᴸᴹᵐⁿᴺᴼᵒᴾᴿʳˢᵀᵗᵁᵘᵛⱽʷˣʸᶻ]/
+
+#
+# Bars above ----
+#
+
+bar           = ligletbar | barletlig | ligbar | barlig | barunc | uncbar | (bar_simple ! combining_breve) | bar_combined
+
+HIDE:barable = (pc | am | letter_mixed)
+HIDE:bar_simple = barable combining_barabove | barcomposed
+HIDE:bar_combined = barable (combining_barbetween barable) +
+
+
+# TODO: Are the combining vs. single macrons correctly assigned here?
+# ā   U+0304 COMBINING MACRON   (single letter)
+# a̅  U+0305 COMBINING OVERLINE (single letter)
+# a͞  U+035E COMBINING DOUBLE MACRON     (combines two letters)
+# a︦   U+FE26 COMBINING CONJOINING MACRON (combines two letters)
+
+DROP:combining_barabove     = /[\u0304\u0305]/
+DROP:combining_barbetween    = /[\u035E\uFE26]/
+HIDE:barcomposed    = /[ĀĪōīā]/
+
+HIDE:uncbar = unc combining_barabove
+# Renamed to unc in AST
+barunc = bar_simple combining_dotbelow
+
+#
+# Bars below ----
+#
+
+# a̱ \u0331 combining macron below (a flatter, shorter underline)
+# a̲ \u0332 combining low line (looks like a simple underline)
+# a͟ \u035F combining double macron below (can extend under multiple letters)
+subbar              = (letter combining_barbelow) +
+DROP:combining_barbelow  = /[\u0331\u0332]/
+#HIDE:subbarcomposed = /[ꝑ]/
+
+#
+# Ligatures ----
+#
+
+# Example: A͡N̅O (bar above N, breve conneting A and N)
+# Example: ho̅͡rabil (bar above o, breve connecting o and r)
+
+lig        = ligable (combining_breve ligable )+
+HIDE:ligable = bar_simple | unc | am | strike | pc | com | letter_mixed
+
+#\u0361 → combining double inverted breve (used to link two letters, like a tie: a͡b)
+DROP:combining_breve = /\u0361/
+
+# All renamed to lig in AST, type attribute will distinguish them
+ligbar        = letter combining_breve combining_barbetween letter
+barlig        = letter  combining_barbetween combining_breve letter
+
+ligletbar     = letter combining_breve letter combining_barbetween letter
+barletlig     = letter combining_barbetween letter combining_breve letter
+
+#
+# Combining superscript letters / Enclaved ----
+#
+
+# Combining letters
+#ͣ → U+0363  (COMBINING LATIN SMALL LETTER A)
+#ͤ → U+0364  (COMBINING LATIN SMALL LETTER E)
+#ͥ → U+0365  (COMBINING LATIN SMALL LETTER I)
+#ͦ → U+0366 (COMBINING LATIN SMALL LETTER O)
+#ͧ → U+0367 (COMBINING LATIN SMALL LETTER U)
+#ͨ → U+0368 (COMBINING LATIN SMALL LETTER C)
+#ͩ → U+0369 (COMBINING LATIN SMALL LETTER D)
+#ͪ → U+036A (COMBINING LATIN SMALL LETTER H)
+#ͫ → U+036B (COMBINING LATIN SMALL LETTER M)
+#ͬ → U+036C  (COMBINING LATIN SMALL LETTER R)
+#ͭ → U+036D  (COMBINING LATIN SMALL LETTER T)
+#ͮ → U+036E (COMBINING LATIN SMALL LETTER V)
+#ͯ → U+036F (COMBINING LATIN SMALL LETTER X)
+HIDE:supable = unc | pc | letter
+com   = supable combining_superscript
+HIDE:combining_superscript = /[\u0363-\u036F]/
+
+#
+# Terminators ----
+#
+
+terminator = /(?<!\s)[\.:,;]/
+
+#
+# Binders ----
+#
+
+binder = binder_equal | binder_hyphen
+
+HIDE:binder_equal  = "="
+HIDE:binder_hyphen  = /(?<!-)-(?!-)/
+
+#
+# Abbreviation marks ----
+#
+
+am  = /[⁊ꝰꝐꝑ’&ꝪꝫŁ»6♃’]/
+
+strike = strike_through | strike_solidus | strike_double
+
+# 033F: o̿
+strike_double =  (letter combining_strikedouble)
+DROP:combining_strikedouble  = /[\u033F]/
+
+# 0336: v̶
+strike_through =  (letter combining_strikethrough)
+DROP:combining_strikethrough  = /[\u0336]/
+
+# 0337: R̷
+strike_solidus =  (letter combining_strikesolidus)
+DROP:combining_strikesolidus  = /[\u0337]/
+
+
+#
+# Brackets ----
+#
+
+HIDE:brackets = dec | spaceseq | ex | gap | res | cpl | era | add
+
+# Space intentionally left blank.
+# AST: Number of characters will be added to the extent attribute
+HIDE:spaceseq = inspace space
+space         = `(` "-"+ `)`
+
+#
+# Lost text ----
+#
+
+# AST: gap_nested is renamed to gap
+# AST: Number of dots will be added to the quantity attribute,
+#      the attribute is empty for unknown extent.
+gap        = `[` lost `]`
+#gap_nested = lost
+
+HIDE:lost = lost_unknown | lost_number | lost_dots
+lost_unknown = `.?.` | `-?-`
+lost_dots    = "."+
+lost_number = `.c` /[0-9]+/ `.`
+
+#
+# Decorative symbols ----
+#
+
+dec  = `((` inline+ `))`
+
+#
+# Expansion of abbreviations ----
+#
+
+ex   = ex_known | ex_unknown | ex_tentative
+ex_known     = `(` inline+ `)`
+ex_tentative = `(` inline+ `?` `)`
+ex_unknown   = `(` "---" `)`
+
+#
+# Restored, complemented, erased, added text ----
+#
+
+res  = `[[`     ( inline | brackets )+ `]]`  # Excel: double square brackets. Epigraf: single square brackets.
+cpl  = `[`      ( inline | brackets )+ `]`   # Excel: single square brackets. Epigraf: underlined text.
+era  = `〚`     ( inline | brackets )+ `〛`
+add  = backtick ( inline | brackets )+ tick
+
+DROP:backtick = "`"
+DROP:tick = "´"
+
+#
+# Insignificant and pretty space ----
+#
+
+inspace           = /[ \u00A0]/~
+DROP:prettyspace  = /[ ]*/

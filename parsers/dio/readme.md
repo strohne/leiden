@@ -1,8 +1,6 @@
-# Parsing results
+# Preprocessing
 
-## Broken articles
-
-The file dio_preprocess.csv contains fixes for broken articles.
+The file preprocess.csv contains fixes for broken articles.
 
 - search:  A regex that matches broken markup
 - replace: The replacement pattern. 

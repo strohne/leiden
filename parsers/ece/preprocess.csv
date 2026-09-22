@@ -1,0 +1,6 @@
+search;replace;cases;comment
+" ";" ";;Replace nbsp
+"​";"";;Replace zwsp
+"\[\.\?,\]";"[.?.]";;Fix comma
+…;...;;Replace three dots by three dots
+"&#x323;";̣;;Unify combining dot below

@@ -3,6 +3,23 @@
 
 # Output
 data/output
+data/input
+!data/input/dio_inschriften_di101.csv
+!data/input/dio_inschriften_di101.csv
+
+# Tests
+parsers/*/tests/chunk_*.ini
+
+# DHParser related
+REPORT
+**/REPORT/*
+LOGS
+**/LOGS/*
+/DHParser/
+
+# Further
+private/
+*MESSAGES.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -175,14 +192,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# DHParser related
-REPORT
-**/REPORT/*
-LOGS
-**/LOGS/*
-/DHParser/
-
-# Further
-private/
-*MESSAGES.txt

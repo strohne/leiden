@@ -1,6 +1,9 @@
 # DIO inscription parser
 
-A parser for Leidener Klammersystem transcriptions from the project Die Deutschen Inschriften.
+Parsers for Leidener Klammersystem transcriptions.
+
+One parser is tailored for the project Die Deutschen Inschriften.
+Another parser is made for the EpiCentres project.
 
 ## Getting started
 
@@ -9,28 +12,22 @@ A parser for Leidener Klammersystem transcriptions from the project Die Deutsche
   ```
   pip install DHParser
   pip install pandas
+  pip install openpyxl
   ```
-- Run `epi2dio.py` in interactive mode
+- Run `parsers/dio/transform.py` in interactive mode
 
 
 To generate parsers:
 ```
+cd parsers/dio
 dhparser dio.ebnf
 ```
 
 To run tests:
 ```
-python tst_dio_grammar.py tests_grammar/03_test_dio_passau.ini
+cd parsers/dio
+python tests.py tests/03_test_dio_sco_passau.ini
 ```
-
-## Resources
-
-https://epidoc.stoa.org/gl/latest/
-
-https://patrimonium.huma-num.fr/atlas/editor/
-
-https://patrimonium.huma-num.fr/atlas/epidoc-converter/
-
 
 ## Authors
 

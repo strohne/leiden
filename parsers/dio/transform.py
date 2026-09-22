@@ -3,7 +3,7 @@
 # Transform DIO data from the T3 database
 #
 # Step 1: Preprocess text.
-#         Replaces broken markup,  see dio_preprocess.csv
+#         Replaces broken markup, see dio/preprocess.csv
 # Step 2: Transform the data using the dio.ebnf grammar.
 #         The script shows a summary statistic of how many files were well-formed.
 #
@@ -16,9 +16,10 @@
 # are represented with named entities (&lt; &gt;).
 #
 #
+import os
 
 import pandas as pd
-import dioParser
+import parsers.dio.dioParser as dioParser
 from tqdm import tqdm
 
 import importlib
@@ -26,11 +27,13 @@ importlib.reload(dioParser)
 
 #%% Load transcriptions
 
-df = pd.read_csv("data/dio_inschriften.csv", delimiter = ';')
+filename = "dio_inschriften_di101.csv"
+
+df = pd.read_csv(os.path.join("data/input", filename), delimiter = ';')
 df['case'] = range(1, len(df) + 1)
 
 #%% Preprocess
-regs = pd.read_csv("data/dio_preprocess.csv", delimiter = ';', keep_default_na=False)
+regs = pd.read_csv("parsers/dio/preprocess.csv", delimiter = ';', keep_default_na=False)
 for idx, row in regs.iterrows():
     df['content'] =  df['content'].str.replace(row['search'], row['replace'], regex=True) # , flags = re.MULTILINE
 
@@ -42,12 +45,14 @@ for idx, row in df.iterrows():
     tests += f"\nC{str(row['case'])}: "
     tests += '"""' + inscription + '"""'
 
-with open("tests_grammar/" + filename + ".ini", "w", encoding="utf-8") as file:
+outputname = os.path.splitext(os.path.basename(filename))[0]
+with open("parsers/dio/tests/" + outputname + ".ini", "w", encoding="utf-8") as file:
     file.write("[match:sco]\n" + tests)
 
 #%% Build parser
 
-dioParser.recompile_grammar("dio.ebnf", "dioParser.py", force=True)
+grammarpath = os.path.join("parsers/dio", "dio.ebnf")
+dioParser.recompile_grammar(grammarpath, force=True)
 
 #%% Parse all dio sco
 
@@ -70,4 +75,4 @@ df['ok'] = df['parsed'].str.startswith("<sco>")
 print(df['ok'].value_counts())
 
 #%% Save result
-df.to_csv("data/output.csv", index=False, sep=";")
+df.to_csv(os.path.join("data/output", outputname + ".csv"), index=False, sep=";")
