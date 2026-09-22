@@ -8,11 +8,14 @@ Another parser is made for the EpiCentres project.
 ## Getting started
 
 - Clone the repo
-- Install packages:
+- Install dependencies:
   ```
-  pip install DHParser
-  pip install pandas
-  pip install openpyxl
+  python -m pip install -r requirements.txt
+  ```
+- Install the local package and the Jupyter kernel:
+  ```
+  python -m pip install -e .
+  python -m pip install ipykernel
   ```
 - If you have access to an Epigraf database, use `data/input/getdata.R` to get inscription data.
 - Run `parsers/dio/transform.py` in interactive mode
