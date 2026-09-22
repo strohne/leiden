@@ -34,9 +34,8 @@ importlib.reload(dioParser)
 
 #%% Load transcriptions
 
-
 filename = "dio_public_raw.csv"
-df = pd.read_csv(PROJECT_ROOT / "data" / "input" / filename, delimiter = ';')
+df = pd.read_csv(PROJECT_ROOT / "data" / "input" / filename, delimiter = ',')
 df['case'] = range(1, len(df) + 1)
 
 #%% Preprocess
