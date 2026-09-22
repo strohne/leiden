@@ -117,7 +117,7 @@ class eceGrammar(Grammar):
     brackets = Forward()
     supable = Forward()
     unc = Forward()
-    source_hash__ = "7b0bdf32575c078d56cd1258651d9d60"
+    source_hash__ = "406577bc6c527e1ebe7c5846609af039"
     early_tree_reduction__ = CombinedParser.MERGE_LEAVES
     disposable__ = re.compile('(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:(?:multiline$))|(?:singleline$))|(?:linestart$))|(?:linebreak$))|(?:lb_sep$))|(?:EOF$))|(?:inscription$))|(?:inline$))|(?:characters$))|(?:letters_range$))|(?:letters_sequence$))|(?:combining$))|(?:combining_diacrytic$))|(?:letter$))|(?:letter_simple$))|(?:letter_plain$))|(?:letter_greek$))|(?:letter_extended$))|(?:letter_apostrophe$))|(?:letter_diacrytic$))|(?:uncable$))|(?:uncertain_combined$))|(?:uncertain_precomposed$))|(?:uncertain_binder$))|(?:uncertain_pc$))|(?:uncertain_am$))|(?:dotbelow$))|(?:combining_dotbelow$))|(?:sups_number$))|(?:sups_letter$))|(?:barable$))|(?:bar_simple$))|(?:bar_combined$))|(?:combining_barabove$))|(?:combining_barbetween$))|(?:barcomposed$))|(?:uncbar$))|(?:combining_barbelow$))|(?:ligable$))|(?:combining_breve$))|(?:supable$))|(?:combining_superscript$))|(?:binder_equal$))|(?:binder_hyphen$))|(?:combining_strikedouble$))|(?:combining_strikethrough$))|(?:combining_strikesolidus$))|(?:brackets$))|(?:spaceseq$))|(?:lost$))|(?:backtick$))|(?:tick$))|(?:prettyspace$)')
     static_analysis_pending__ = []  # type: List[bool]
@@ -183,10 +183,10 @@ class eceGrammar(Grammar):
     ligletbar = Series(letter, combining_breve, letter, combining_barbetween, letter)
     barlig = Series(letter, combining_barbetween, combining_breve, letter)
     ligbar = Series(letter, combining_breve, combining_barbetween, letter)
-    sups_letter = RegExp('[ᴬᵃᴮᶜᴰᵈᴱᵉᴳᴴᴵⁱᴶᴷᴸᴹᵐᴺᴼᵒᴾᴿʳˢᵀᵗᵁᵘᵛⱽʷˣʸᶻ]')
+    sups_letter = RegExp('[ᴬᵃᴮᶜᴰᵈᴱᵉᴳᴴᴵⁱᴶᴷᴸᴹᵐⁿᴺᴼᵒᴾᴿʳˢᵀᵗᵁᵘᵛⱽʷˣʸᶻ]')
     sups_number = RegExp('[⁰¹²³⁴⁵⁶⁷⁸⁹]')
     sup = OneOrMore(Alternative(sups_number, sups_letter))
-    sep_word_special = RegExp('[ͦ°ↀꝚ⁜✶☓‡†✝+◦✢〇⊙⬦◇⋮⦂≡ᛁᛟ᪥⨯ͮ≗᪥◆●𛲜⁘◎△⁙⦚|/⌃!?–]')
+    sep_word_special = RegExp('[ͦ°ↀꝚ⁜✶☓§‡†✝+◦✢〇⊙⬦◇⋮⦂≡ᛁᛟ᪥⨯ͮ≗᪥◆●𛲜⁘◎△⁙⦚|/⌃!?–]')
     sep_word_punct = RegExp('[:;,]')
     sep_word_period = RegExp('\\.(?!\\?)')
     sep_word_dot = RegExp('[ᣟ·∙⋅]')
@@ -230,6 +230,7 @@ class eceGrammar(Grammar):
 parsing: PseudoJunction = create_parser_junction(eceGrammar)
 get_grammar = parsing.factory  # for backwards compatibility, only
 
+
 try:
     assert RE_INCLUDE == NEVER_MATCH_PATTERN or \
         RE_COMMENT in (eceGrammar.COMMENT__, NEVER_MATCH_PATTERN), \
@@ -243,6 +244,7 @@ try:
         "preprocessor to ignore comments."
 except (AttributeError, NameError):
     pass
+
 
 
 #######################################################################
