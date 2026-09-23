@@ -26,6 +26,7 @@ df = pd.read_csv( PROJECT_ROOT / "data" / "output" / filename, delimiter =';')
 #%% Prepare data for patch
 
 # Keep successful parsing
+# TODO: Read parsing quality, decide what will be patched
 df = df[df['ok'] == True]
 
 # Update item type
@@ -52,5 +53,5 @@ patch.to_csv(PROJECT_ROOT / "data" / "patch" / f"{timestamp}_patch.csv", index=F
 
 #%% !Directly patch parsed items
 
-# database = "epi_paleo"
+# database = "epi_public"
 # epi.api.patch(patch, database = f"{database}")
