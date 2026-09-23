@@ -1,6 +1,9 @@
 # PyCharm settings
 .idea
 
+# User settings for epygraf
+settings.py
+
 # Input and output
 data/output
 data/input/*.csv
