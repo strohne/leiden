@@ -54,4 +54,4 @@ patch.to_csv(PROJECT_ROOT / "data" / "patch" / f"{timestamp}_patch.csv", index=F
 #%% !Directly patch parsed items
 
 # database = "epi_public"
-# epi.api.patch(patch, database = f"{database}")
+# settings.epi.api.patch(patch, database = f"{database}")
