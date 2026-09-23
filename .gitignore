@@ -4,11 +4,12 @@
 # User settings for epygraf
 settings.py
 
-# Input and output
+# Input, output, and patch
 data/output
 data/input/*.csv
 !data/input/dio_inschriften_di101.csv
 !data/input/dio_inschriften_di101.csv
+data/patch
 
 # Tests
 parsers/*/tests/chunk_*.ini
