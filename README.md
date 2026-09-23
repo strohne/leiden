@@ -33,6 +33,8 @@ cd parsers/dio
 python tests.py tests/03_test_dio_sco_passau.ini
 ```
 
+To patch successfully parsed data, see `patch/readme.md`.
+
 ## Authors
 
 DIOParser is based on [DHParser](https://dhparser.readthedocs.io/).
